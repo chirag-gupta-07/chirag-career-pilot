@@ -1251,7 +1251,8 @@ export const templates = [
     "views": 1103,
     "rating": 4.5,
     "image": "/template-previews/Mono_Elegant.png",
-    "createdAt": "2026-05-01"
+    "createdAt": "2026-05-01",
+    "isComplete": true
   },
   {
     "id": "Monospace_Minimal",
