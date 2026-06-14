@@ -1,3 +1,10 @@
+## [1.239.1](https://github.com/anurag3407/career-pilot/compare/v1.239.0...v1.239.1) (2026-06-14)
+
+
+### Bug Fixes
+
+* **frontend:** LinkedIn import section theme compatibility and templates syntax error ([05484b3](https://github.com/anurag3407/career-pilot/commit/05484b3960343340aca4ead878837b97d9e48035))
+
 # [1.239.0](https://github.com/anurag3407/career-pilot/compare/v1.238.0...v1.239.0) (2026-06-14)
 
 
