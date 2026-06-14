@@ -1,5 +1,18 @@
 export const templates = [
   {
+    "id": "Zen_Bamboo_Forest_Wind",
+    "title": "Zen Bamboo Forest Wind",
+    "category": "Portfolio",
+    "colorScheme": "Light",
+    "layout": "Scroll",
+    "author": "Anurag3407",
+    "views": 99999,
+    "rating": 5.0,
+    "image": "/templates/Zen_Bamboo_Forest_Wind.png",
+    "createdAt": "2026-06-14",
+    "isComplete": true
+  },
+  {
     "id": "Cartographer_Antiquity_Map_Room",
     "title": "Cartographer Antiquity Map Room",
     "category": "Portfolio",
@@ -55,10 +68,7 @@ export const templates = [
   {
     "image": "/template-previews/Endless_Runner_Minigame.png",
     "createdAt": "2026-06-12",
-    isComplete: true,
-    "image": "/template-previews/Endless_Runner_Minigame.png",
-    "createdAt": "2026-06-12",
-    "isComplete": true
+    "isComplete": true,
   },
   {
     "id": "Git_Commit_History_Tree",
@@ -594,11 +604,6 @@ export const templates = [
     image: "/template-previews/Zine_Collage.png",
     createdAt: "2026-06-08",
     description: "An asymmetric, high-contrast scrapbook magazine layout featuring heavy ink borders, rotated clipping frames, and retro label-maker accents.",
-    author: "System",
-    views: 0,
-    rating: 4.5,
-    image: "/template-previews/Zine_Collage.png",
-    createdAt: "2026-06-01",
     isComplete: true
   },
   
