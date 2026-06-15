@@ -1,3 +1,10 @@
+## [1.244.2](https://github.com/anurag3407/career-pilot/compare/v1.244.1...v1.244.2) (2026-06-15)
+
+
+### Bug Fixes
+
+* **security:** rate-limit LinkedIn token exchange endpoint ([#1256](https://github.com/anurag3407/career-pilot/issues/1256)) ([c9531fc](https://github.com/anurag3407/career-pilot/commit/c9531fc65924e179cb11b51e39775074c9b56dc1))
+
 ## [1.244.1](https://github.com/anurag3407/career-pilot/compare/v1.244.0...v1.244.1) (2026-06-15)
 
 
