@@ -390,6 +390,7 @@ rating: 4.8,
     "isComplete": true
   },
   {
+    "id": "Vercel_Deploy_v1",
   "id": "AquaticBioluminescent",
   "title": "Aquatic Bioluminescent",
   "category": "Portfolio",
@@ -2805,7 +2806,7 @@ rating: 4.8,
     "createdAt": "2026-05-01"
   },
   {
-    "id": "Vercel_Deploy",
+    "id": "Vercel_Deploy_v2",
     "title": "Vercel Deploy",
     "category": "Portfolio",
     "colorScheme": "Dark",
@@ -2975,6 +2976,15 @@ rating: 4.8,
     "createdAt": "2026-06-06"
   },
   {
+    "id": "Bouncing_DVD_Logo",
+    "title": "Bouncing DVD Logo",
+    "category": "Portfolio",
+    "colorScheme": "Dark",
+    "layout": "Interactive",
+    "author": "mallya-m",
+    "views": 0,
+    "rating": 0,
+    "image": "/template-previews/Bouncing_DVD_Logo.png",
     "id": "One_Pixel_Master",
     "title": "One Pixel Master",
     "category": "Portfolio",
