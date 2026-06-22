@@ -380,7 +380,6 @@ body {
   .animate-shine {
     animation: shine 5s linear infinite;
   }
-}
 
   .nav-link-active {
     background-color: color-mix(in srgb, var(--primary) 10%, transparent);

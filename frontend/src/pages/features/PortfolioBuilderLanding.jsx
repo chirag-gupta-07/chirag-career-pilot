@@ -4,7 +4,9 @@ import Navbar from '../../components/Navbar';
 import Footer from '../../components/ui/Footer';
 import Seo from '../../components/Seo';
 
-import PortfolioBuilderHero from '../../components/landing/PortfolioBuilderHero';
+import PortfolioBuilderHero, {
+  InteractiveDotCanvas,
+} from '../../components/landing/PortfolioBuilderHero';
 import FeatureShowcase from '../../components/landing/FeatureShowcase';
 import FeatureVideoSection from '../../components/landing/FeatureVideoSection';
 import FeatureHowItWorks from '../../components/landing/FeatureHowItWorks';
@@ -22,12 +24,23 @@ export default function PortfolioBuilderLanding() {
   const ctaSectionLink = user ? config.primaryAction.to : config.cta.ctaTo;
 
   return (
-    <div className="flex flex-col min-h-screen bg-background text-foreground">
+    <div className="relative flex flex-col min-h-screen bg-[#0a0a0a] text-foreground">
       <Seo {...config.seo} />
       <Navbar />
 
-      <main className="flex-1">
-        {/* New interactive dot-grid hero (overrides FeatureLandingPage's hero) */}
+      {/* Full-page interactive dot canvas (fixed, behind everything) */}
+      <InteractiveDotCanvas accent="#0CF2A0" />
+
+      {/* Soft vignette to keep text readable over the dots */}
+      <div
+        className="pointer-events-none fixed inset-0 z-[1]"
+        style={{
+          background:
+            'radial-gradient(ellipse at center, transparent 30%, rgba(10,10,10,0.85) 90%)',
+        }}
+      />
+
+      <main className="relative z-10 flex-1">
         <PortfolioBuilderHero
           badgeText="150+ templates live"
           headlineBefore="Ship a stunning portfolio in"
@@ -35,40 +48,41 @@ export default function PortfolioBuilderLanding() {
           description={config.hero.description}
           primaryCta={{ text: primaryCtaText, to: primaryCtaLink }}
           secondaryCta={{ text: config.hero.secondaryCta.text, href: config.hero.secondaryCta.href }}
-          templateGalleryHref={config.primaryAction.to}
         />
 
-        <FeatureShowcase
-          heading={config.showcase.heading}
-          features={config.showcase.features}
-        />
+        <div className="bg-[#0a0a0a]/60 backdrop-blur-[2px]">
+          <FeatureShowcase
+            heading={config.showcase.heading}
+            features={config.showcase.features}
+          />
 
-        <div id="demo">
-          <FeatureVideoSection
-            heading={config.video.heading}
-            subheading={config.video.subheading}
-            videoUrl={config.video.videoUrl}
-            caption={config.video.caption}
+          <div id="demo">
+            <FeatureVideoSection
+              heading={config.video.heading}
+              subheading={config.video.subheading}
+              videoUrl={config.video.videoUrl}
+              caption={config.video.caption}
+            />
+          </div>
+
+          <FeatureHowItWorks
+            heading={config.howItWorks.title}
+            subheading="A simpler way to reach your goals."
+            steps={config.howItWorks.steps}
+          />
+
+          <FeatureTestimonials
+            heading={config.testimonials.heading}
+            testimonials={config.testimonials.items}
+          />
+
+          <FeatureCTA
+            heading={config.cta.headline}
+            subheading={config.cta.subtext}
+            primaryCtaText={ctaSectionText}
+            primaryCtaLink={ctaSectionLink}
           />
         </div>
-
-        <FeatureHowItWorks
-          heading={config.howItWorks.title}
-          subheading="A simpler way to reach your goals."
-          steps={config.howItWorks.steps}
-        />
-
-        <FeatureTestimonials
-          heading={config.testimonials.heading}
-          testimonials={config.testimonials.items}
-        />
-
-        <FeatureCTA
-          heading={config.cta.headline}
-          subheading={config.cta.subtext}
-          primaryCtaText={ctaSectionText}
-          primaryCtaLink={ctaSectionLink}
-        />
       </main>
 
       <Footer />

@@ -352,106 +352,96 @@ const DropdownItem = ({ href = '#', children, icon }) => (
   </a>
 );
 
-/* ─── Interactive dot canvas ─── */
+/* ─── Interactive dot canvas (full-page) ─── */
 
-const PortfolioBuilderHero = ({
-  badgeText = '150+ templates live',
-  headlineBefore = 'Ship a stunning portfolio in',
-  rotatingWords = ['minutes', 'one click', 'a weekend', 'one coffee'],
-  rotatingAccent = '#0CF2A0',
-  description = 'Pick a template, fill a few fields, and your personal site is live on a global CDN. GitHub, resume, and 150+ creative themes — all in one builder.',
-  primaryCta = { text: 'Start building free', to: '/portfolio-builder/templates' },
-  secondaryCta = { text: 'See live examples', href: '#templates' },
-  templateGalleryHref = '/portfolio-builder/templates',
+const InteractiveDotCanvas = ({
+  accent = '#0CF2A0',
+  spacing = 25,
+  opacityMin = 0.4,
+  opacityMax = 0.5,
+  radius = 1,
+  interactionRadius = 150,
+  opacityBoost = 0.6,
+  radiusBoost = 2.5,
+  className = '',
 }) => {
   const canvasRef = useRef(null);
   const animationFrameId = useRef(null);
   const dotsRef = useRef([]);
   const gridRef = useRef({});
-  const canvasSizeRef = useRef({ width: 0, height: 0 });
-  const mousePositionRef = useRef({ x: null, y: null });
+  const sizeRef = useRef({ width: 0, height: 0 });
+  const mouseRef = useRef({ x: null, y: null });
 
-  const DOT_SPACING = 25;
-  const BASE_OPACITY_MIN = 0.4;
-  const BASE_OPACITY_MAX = 0.5;
-  const BASE_RADIUS = 1;
-  const INTERACTION_RADIUS = 150;
-  const INTERACTION_RADIUS_SQ = INTERACTION_RADIUS * INTERACTION_RADIUS;
-  const OPACITY_BOOST = 0.6;
-  const RADIUS_BOOST = 2.5;
-  const GRID_CELL_SIZE = Math.max(50, Math.floor(INTERACTION_RADIUS / 1.5));
+  const GRID_CELL_SIZE = useMemo(
+    () => Math.max(50, Math.floor(interactionRadius / 1.5)),
+    [interactionRadius]
+  );
+
+  const accentRgb = useMemo(() => {
+    if (typeof window === 'undefined') return { r: 12, g: 242, b: 160 };
+    const ctx = document.createElement('canvas').getContext('2d');
+    ctx.fillStyle = accent;
+    ctx.fillRect(0, 0, 1, 1);
+    const data = ctx.getImageData(0, 0, 1, 1).data;
+    return { r: data[0], g: data[1], b: data[2] };
+  }, [accent]);
 
   const handleMouseMove = useCallback((event) => {
     const canvas = canvasRef.current;
     if (!canvas) {
-      mousePositionRef.current = { x: null, y: null };
+      mouseRef.current = { x: null, y: null };
       return;
     }
     const rect = canvas.getBoundingClientRect();
-    mousePositionRef.current = {
+    mouseRef.current = {
       x: event.clientX - rect.left,
-      y: event.clientY - rect.top,
+      y: event.clientY - rect.top + window.scrollY,
     };
   }, []);
 
   const createDots = useCallback(() => {
-    const { width, height } = canvasSizeRef.current;
+    const { width, height } = sizeRef.current;
     if (width === 0 || height === 0) return;
-
     const newDots = [];
     const newGrid = {};
-    const cols = Math.ceil(width / DOT_SPACING);
-    const rows = Math.ceil(height / DOT_SPACING);
+    const cols = Math.ceil(width / spacing);
+    const rows = Math.ceil(height / spacing);
 
     for (let i = 0; i < cols; i++) {
       for (let j = 0; j < rows; j++) {
-        const x = i * DOT_SPACING + DOT_SPACING / 2;
-        const y = j * DOT_SPACING + DOT_SPACING / 2;
+        const x = i * spacing + spacing / 2;
+        const y = j * spacing + spacing / 2;
         const cellX = Math.floor(x / GRID_CELL_SIZE);
         const cellY = Math.floor(y / GRID_CELL_SIZE);
         const cellKey = `${cellX}_${cellY}`;
         if (!newGrid[cellKey]) newGrid[cellKey] = [];
         const dotIndex = newDots.length;
         newGrid[cellKey].push(dotIndex);
-        const baseOpacity =
-          Math.random() * (BASE_OPACITY_MAX - BASE_OPACITY_MIN) + BASE_OPACITY_MIN;
+        const baseOpacity = Math.random() * (opacityMax - opacityMin) + opacityMin;
         newDots.push({
           x,
           y,
-          baseColor: `rgba(12, 242, 160, ${BASE_OPACITY_MAX})`,
           targetOpacity: baseOpacity,
           currentOpacity: baseOpacity,
           opacitySpeed: Math.random() * 0.005 + 0.002,
-          baseRadius: BASE_RADIUS,
-          currentRadius: BASE_RADIUS,
+          baseRadius: radius,
+          currentRadius: radius,
         });
       }
     }
     dotsRef.current = newDots;
     gridRef.current = newGrid;
-  }, [
-    DOT_SPACING,
-    GRID_CELL_SIZE,
-    BASE_OPACITY_MIN,
-    BASE_OPACITY_MAX,
-    BASE_RADIUS,
-  ]);
+  }, [spacing, GRID_CELL_SIZE, opacityMin, opacityMax, radius]);
 
-  const handleResize = useCallback(() => {
+  const measure = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const container = canvas.parentElement;
-    const width = container ? container.clientWidth : window.innerWidth;
-    const height = container ? container.clientHeight : window.innerHeight;
-    if (
-      canvas.width !== width ||
-      canvas.height !== height ||
-      canvasSizeRef.current.width !== width ||
-      canvasSizeRef.current.height !== height
-    ) {
+    const width = window.innerWidth;
+    const height = document.documentElement.scrollHeight;
+    if (sizeRef.current.width !== width || sizeRef.current.height !== height) {
       canvas.width = width;
       canvas.height = height;
-      canvasSizeRef.current = { width, height };
+      sizeRef.current = { width, height };
       createDots();
     }
   }, [createDots]);
@@ -461,8 +451,9 @@ const PortfolioBuilderHero = ({
     const ctx = canvas?.getContext('2d');
     const dots = dotsRef.current;
     const grid = gridRef.current;
-    const { width, height } = canvasSizeRef.current;
-    const { x: mouseX, y: mouseY } = mousePositionRef.current;
+    const { width, height } = sizeRef.current;
+    const { x: mouseX, y: mouseY } = mouseRef.current;
+    const irSq = interactionRadius * interactionRadius;
 
     if (!ctx || !dots || !grid || width === 0 || height === 0) {
       animationFrameId.current = requestAnimationFrame(animateDots);
@@ -471,95 +462,113 @@ const PortfolioBuilderHero = ({
 
     ctx.clearRect(0, 0, width, height);
 
-    const activeDotIndices = new Set();
+    const active = new Set();
     if (mouseX !== null && mouseY !== null) {
-      const mouseCellX = Math.floor(mouseX / GRID_CELL_SIZE);
-      const mouseCellY = Math.floor(mouseY / GRID_CELL_SIZE);
-      const searchRadius = Math.ceil(INTERACTION_RADIUS / GRID_CELL_SIZE);
-      for (let i = -searchRadius; i <= searchRadius; i++) {
-        for (let j = -searchRadius; j <= searchRadius; j++) {
-          const cellKey = `${mouseCellX + i}_${mouseCellY + j}`;
-          if (grid[cellKey]) {
-            grid[cellKey].forEach((idx) => activeDotIndices.add(idx));
-          }
+      const mcx = Math.floor(mouseX / GRID_CELL_SIZE);
+      const mcy = Math.floor(mouseY / GRID_CELL_SIZE);
+      const sr = Math.ceil(interactionRadius / GRID_CELL_SIZE);
+      for (let i = -sr; i <= sr; i++) {
+        for (let j = -sr; j <= sr; j++) {
+          const key = `${mcx + i}_${mcy + j}`;
+          if (grid[key]) grid[key].forEach((idx) => active.add(idx));
         }
       }
     }
 
-    dots.forEach((dot, index) => {
+    for (let i = 0; i < dots.length; i++) {
+      const dot = dots[i];
       dot.currentOpacity += dot.opacitySpeed;
       if (
         dot.currentOpacity >= dot.targetOpacity ||
-        dot.currentOpacity <= BASE_OPACITY_MIN
+        dot.currentOpacity <= opacityMin
       ) {
         dot.opacitySpeed = -dot.opacitySpeed;
         dot.currentOpacity = Math.max(
-          BASE_OPACITY_MIN,
-          Math.min(dot.currentOpacity, BASE_OPACITY_MAX)
+          opacityMin,
+          Math.min(dot.currentOpacity, opacityMax)
         );
         dot.targetOpacity =
-          Math.random() * (BASE_OPACITY_MAX - BASE_OPACITY_MIN) + BASE_OPACITY_MIN;
+          Math.random() * (opacityMax - opacityMin) + opacityMin;
       }
 
       let interactionFactor = 0;
-      dot.currentRadius = dot.baseRadius;
-
-      if (mouseX !== null && mouseY !== null && activeDotIndices.has(index)) {
+      if (mouseX !== null && mouseY !== null && active.has(i)) {
         const dx = dot.x - mouseX;
         const dy = dot.y - mouseY;
         const distSq = dx * dx + dy * dy;
-        if (distSq < INTERACTION_RADIUS_SQ) {
+        if (distSq < irSq) {
           const distance = Math.sqrt(distSq);
-          interactionFactor = Math.max(0, 1 - distance / INTERACTION_RADIUS);
+          interactionFactor = Math.max(0, 1 - distance / interactionRadius);
           interactionFactor *= interactionFactor;
         }
       }
 
-      const finalOpacity = Math.min(1, dot.currentOpacity + interactionFactor * OPACITY_BOOST);
-      dot.currentRadius = dot.baseRadius + interactionFactor * RADIUS_BOOST;
-
-      const colorMatch = dot.baseColor.match(
-        /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/
+      const finalOpacity = Math.min(
+        1,
+        dot.currentOpacity + interactionFactor * opacityBoost
       );
-      const r = colorMatch ? colorMatch[1] : '12';
-      const g = colorMatch ? colorMatch[2] : '242';
-      const b = colorMatch ? colorMatch[3] : '160';
+      const finalRadius = dot.baseRadius + interactionFactor * radiusBoost;
 
       ctx.beginPath();
-      ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${finalOpacity.toFixed(3)})`;
-      ctx.arc(dot.x, dot.y, dot.currentRadius, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${accentRgb.r}, ${accentRgb.g}, ${accentRgb.b}, ${finalOpacity.toFixed(3)})`;
+      ctx.arc(dot.x, dot.y, finalRadius, 0, Math.PI * 2);
       ctx.fill();
-    });
+    }
 
     animationFrameId.current = requestAnimationFrame(animateDots);
   }, [
     GRID_CELL_SIZE,
-    INTERACTION_RADIUS,
-    INTERACTION_RADIUS_SQ,
-    OPACITY_BOOST,
-    RADIUS_BOOST,
-    BASE_OPACITY_MIN,
-    BASE_OPACITY_MAX,
-    BASE_RADIUS,
+    interactionRadius,
+    opacityBoost,
+    radiusBoost,
+    opacityMin,
+    opacityMax,
+    accentRgb,
   ]);
 
   useEffect(() => {
-    handleResize();
+    measure();
     const handleMouseLeave = () => {
-      mousePositionRef.current = { x: null, y: null };
+      mouseRef.current = { x: null, y: null };
+    };
+    const handleScroll = () => {
+      // recompute on scroll only if the document height actually changed
+      const h = document.documentElement.scrollHeight;
+      if (h !== sizeRef.current.height) measure();
     };
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
-    window.addEventListener('resize', handleResize);
+    window.addEventListener('resize', measure);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     document.documentElement.addEventListener('mouseleave', handleMouseLeave);
     animationFrameId.current = requestAnimationFrame(animateDots);
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('resize', measure);
       window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('scroll', handleScroll);
       document.documentElement.removeEventListener('mouseleave', handleMouseLeave);
       if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current);
     };
-  }, [handleResize, handleMouseMove, animateDots]);
+  }, [measure, handleMouseMove, animateDots]);
 
+  return (
+    <canvas
+      ref={canvasRef}
+      className={`pointer-events-none fixed inset-0 z-0 ${className}`}
+      style={{ opacity: 0.8 }}
+    />
+  );
+};
+
+/* ─── Hero (content only — background handled by InteractiveDotCanvas at page level) ─── */
+
+const PortfolioBuilderHero = ({
+  badgeText = '150+ templates live',
+  headlineBefore = 'Ship a stunning portfolio in',
+  rotatingWords = ['minutes', 'one click', 'a weekend', 'one coffee'],
+  description = 'Pick a template, fill a few fields, and your personal site is live on a global CDN. GitHub, resume, and 150+ creative themes — all in one builder.',
+  primaryCta = { text: 'Start building free', to: '/portfolio-builder/templates' },
+  secondaryCta = { text: 'See live examples', href: '#templates' },
+}) => {
   /* ─── Entrance animations ─── */
   const contentDelay = 0.3;
   const itemDelayIncrement = 0.1;
@@ -588,33 +597,11 @@ const PortfolioBuilderHero = ({
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { duration: 0.5, delay: contentDelay + itemDelayIncrement * 5 } },
   };
-  const imageV = {
-    hidden: { opacity: 0, scale: 0.95, y: 20 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      y: 0,
-      transition: { duration: 0.6, delay: contentDelay + itemDelayIncrement * 6, ease: [0.16, 1, 0.3, 1] },
-    },
-  };
 
   return (
-    <section className="relative bg-[#111111] text-gray-300 overflow-hidden">
-      {/* Interactive dot grid background */}
-      <canvas
-        ref={canvasRef}
-        className="absolute inset-0 z-0 pointer-events-none opacity-80"
-      />
-      {/* Vignette fade */}
-      <div
-        className="absolute inset-0 z-[1] pointer-events-none"
-        style={{
-          background:
-            'linear-gradient(to bottom, transparent 0%, #111111 90%), radial-gradient(ellipse at center, transparent 40%, #111111 95%)',
-        }}
-      />
-
-      <main className="relative z-10 flex flex-col items-center justify-center text-center px-4 pt-24 pb-20 min-h-[760px]">
+    <section className="relative text-gray-300 overflow-hidden">
+      {/* Hero content */}
+      <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 pt-24 pb-20 min-h-[760px]">
         {/* Banner */}
         <motion.div variants={bannerV} initial="hidden" animate="visible" className="mb-6">
           <ShinyText
@@ -696,7 +683,7 @@ const PortfolioBuilderHero = ({
           variants={worksWithV}
           initial="hidden"
           animate="visible"
-          className="flex flex-col items-center justify-center space-y-2 mb-10"
+          className="flex flex-col items-center justify-center space-y-2"
         >
           <span className="text-xs uppercase text-gray-500 tracking-wider font-medium">
             Powers deploys to
@@ -731,26 +718,7 @@ const PortfolioBuilderHero = ({
             </span>
           </div>
         </motion.div>
-
-        {/* Product preview image — uses the existing PortfolioBuilderMockup illustration if available */}
-        <motion.div
-          variants={imageV}
-          initial="hidden"
-          animate="visible"
-          className="w-full max-w-5xl mx-auto px-4 sm:px-0"
-        >
-          <Link to={templateGalleryHref}>
-            <img
-              src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1600&q=80"
-              alt="CareerPilot Portfolio Builder template gallery preview"
-              width={1280}
-              height={800}
-              className="w-full h-auto object-cover rounded-lg shadow-xl border border-gray-700/50"
-              loading="lazy"
-            />
-          </Link>
-        </motion.div>
-      </main>
+      </div>
 
       {/* Inline keyframes for the shine animation used by ShinyText */}
       <style>{`
@@ -763,4 +731,5 @@ const PortfolioBuilderHero = ({
   );
 };
 
+export { PortfolioBuilderHero, InteractiveDotCanvas };
 export default PortfolioBuilderHero;
